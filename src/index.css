@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ─── DARK (default) ─────────────────────────────────── */
+  :root {
+    --color-primary:      #6C63FF;
+    --color-primary-dim:  #4F46E5;
+    --color-bg:           #0A0F1E;
+    --color-surface:      #111827;
+    --color-surface-2:    #1F2937;
+    --color-surface-3:    #374151;
+    --color-border:       #1F2937;
+    --color-text:         #F9FAFB;
+    --color-text-muted:   #9CA3AF;
+    --color-text-dim:     #6B7280;
+
+    --glass-bg:           rgba(255, 255, 255, 0.03);
+    --glass-bg-hover:     rgba(255, 255, 255, 0.06);
+    --glass-border:       rgba(255, 255, 255, 0.06);
+    --glass-border-hover: rgba(255, 255, 255, 0.12);
+    --icon-bg:            rgba(255, 255, 255, 0.08);
+
+    --sidebar-w: 72px;
+  }
+
+  /* ─── LIGHT (Uber-inspired: crisp white, near-black text, sharp borders) ─── */
+  .light {
+    --color-primary:      #4F46E5;
+    --color-primary-dim:  #3730A3;
+    --color-bg:           #F8F9FA;
+    --color-surface:      #FFFFFF;
+    --color-surface-2:    #F1F3F5;
+    --color-surface-3:    #E9ECEF;
+    --color-border:       #DEE2E6;
+    --color-text:         #09090B;
+    --color-text-muted:   #52525B;
+    --color-text-dim:     #A1A1AA;
+
+    --glass-bg:           rgba(79, 70, 229, 0.04);
+    --glass-bg-hover:     rgba(79, 70, 229, 0.08);
+    --glass-border:       #DEE2E6;
+    --glass-border-hover: #ADB5BD;
+    --icon-bg:            rgba(79, 70, 229, 0.08);
+  }
+
+  :root.sidebar-open {
+    --sidebar-w: 240px;
+  }
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
+
+  html {
+    @apply antialiased;
+    font-family: "DM Sans", sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Syne", sans-serif;
+  }
+
+  /* Form control fixes */
+  input, textarea, select {
+    color: var(--color-text);
+    background-color: var(--color-surface-3);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--color-text-dim);
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-3) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Sidebar nav visibility */
+  .nav-label {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 1;
+    transition: opacity 150ms ease;
+    white-space: nowrap;
+  }
+
+  :root:not(.sidebar-open) .nav-label,
+  :root:not(.sidebar-open) .sidebar-logo-text {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+  }
+
+  /* ─── Theme-aware helpers for hardcoded-dark components ─── */
+  /* text-white → becomes dark text in light mode */
+  .light .theme-text { color: var(--color-text) !important; }
+  .light .theme-text-muted { color: var(--color-text-muted) !important; }
+  .light .theme-text-dim { color: var(--color-text-dim) !important; }
+  .light .theme-bg { background-color: var(--color-bg) !important; }
+  .light .theme-surface { background-color: var(--color-surface) !important; }
+  .light .theme-border { border-color: var(--color-border) !important; }
+
+  /* Home page specific overrides for light mode */
+  .light .text-white { color: var(--color-text) !important; }
+  .light .text-\[\#64748b\] { color: var(--color-text-muted) !important; }
+  .light .text-\[\#94a3b8\] { color: var(--color-text-muted) !important; }
+  .light .bg-white\/\[0\.02\] { background-color: rgba(79,70,229,0.03) !important; }
+  .light .bg-white\/\[0\.03\] { background-color: var(--color-surface-2) !important; }
+  .light .bg-white\/\[0\.04\] { background-color: rgba(79,70,229,0.04) !important; }
+  .light .bg-white\/5 { background-color: var(--color-surface-2) !important; }
+  .light .bg-white\/10 { background-color: rgba(79,70,229,0.08) !important; }
+  .light .border-white\/\[0\.02\] { border-color: var(--color-border) !important; }
+  .light .border-white\/\[0\.04\] { border-color: var(--color-border) !important; }
+  .light .border-white\/\[0\.08\] { border-color: var(--color-border) !important; }
+  .light .border-white\/10 { border-color: var(--color-border) !important; }
+  .light .border-white\/15 { border-color: var(--color-border) !important; }
+  .light .hover\:bg-white\/5:hover { background-color: rgba(79,70,229,0.05) !important; }
+  .light .text-slate-300 { color: var(--color-text-muted) !important; }
+  .light .text-slate-400 { color: var(--color-text-muted) !important; }
+  .light .text-slate-200 { color: var(--color-text) !important; }
+  .light .text-slate-500 { color: var(--color-text-dim) !important; }
+  .light .hover\:text-white:hover { color: var(--color-primary) !important; }
+
+  /* Streak day dots */
+  .light .ring-offset-\[\#0d1220\] { --tw-ring-offset-color: var(--color-surface) !important; }
+
+  /* Progress / Skill bar backgrounds */
+  .light .bg-white\/\[0\.03\] { background-color: var(--color-surface-2) !important; }
+}
