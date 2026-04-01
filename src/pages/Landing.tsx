@@ -3,8 +3,86 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePres
 import { useNavigate } from 'react-router-dom';
 import {
   FileText, Zap, Brain, BarChart2, ChevronRight, Star,
-  Upload, MessageSquare, Trophy, ArrowRight, Sparkles, Check
+  Upload, MessageSquare, Trophy, ArrowRight, Sparkles, Check, Menu, X
 } from 'lucide-react';
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Responsive CSS injected once
+───────────────────────────────────────────────────────────────────────── */
+const RESPONSIVE_STYLES = `
+  .landing-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .landing-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .landing-how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .resume-card-wrap {
+    width: 340px;
+  }
+  .landing-nav-links { display: flex; }
+  .landing-nav-cta   { display: flex; }
+  .landing-hamburger { display: none; }
+  .landing-mobile-menu { display: none; }
+
+  @media (max-width: 900px) {
+    .landing-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      text-align: center;
+    }
+    .landing-features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .landing-how-grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .resume-card-wrap {
+      width: 100%;
+      max-width: 340px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .landing-features-grid {
+      grid-template-columns: 1fr;
+    }
+    .landing-nav-links { display: none; }
+    .landing-nav-cta   { display: none; }
+    .landing-hamburger { display: flex; }
+    .landing-mobile-menu.open { display: flex; }
+    .resume-card-wrap {
+      width: 100%;
+      max-width: 300px;
+    }
+    .cta-inner-box {
+      padding: 48px 24px !important;
+    }
+  }
+`;
+
+function InjectStyles() {
+  useEffect(() => {
+    if (document.getElementById('landing-responsive')) return;
+    const el = document.createElement('style');
+    el.id = 'landing-responsive';
+    el.textContent = RESPONSIVE_STYLES;
+    document.head.appendChild(el);
+    return () => { document.getElementById('landing-responsive')?.remove(); };
+  }, []);
+  return null;
+}
 
 /* ─────────────────────────────────────────────────────────────────────────
    Helpers
@@ -120,17 +198,17 @@ function ResumeCard3D() {
   ];
 
   return (
-    <div style={{ perspective: '900px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ perspective: '900px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px 0' }}>
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={() => setHovered(true)}
+        className="resume-card-wrap"
         style={{
           rotateX: springX,
           rotateY: springY,
           transformStyle: 'preserve-3d',
-          width: '340px',
           position: 'relative',
         }}
         animate={{
@@ -483,6 +561,7 @@ function Particles() {
 ───────────────────────────────────────────────────────────────────────── */
 function Navbar({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => void }) {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
@@ -491,74 +570,129 @@ function Navbar({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => vo
   }, []);
 
   return (
-    <motion.nav
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? 'rgba(10,15,30,0.85)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(108,99,255,0.15)' : '1px solid transparent',
-        transition: 'all 0.4s ease',
-        padding: '0 5%',
-        height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}
-    >
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <img 
-          src="/logo.png" 
-          alt="Resume2Interview Logo" 
-          style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }} 
-        />
-        <span style={{
-          fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18,
-          background: 'linear-gradient(135deg, #F9FAFB, #818CF8)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          Resume2Interview
-        </span>
-      </div>
+    <>
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+          background: scrolled || mobileOpen ? 'rgba(10,15,30,0.95)' : 'transparent',
+          backdropFilter: scrolled || mobileOpen ? 'blur(20px)' : 'none',
+          borderBottom: scrolled || mobileOpen ? '1px solid rgba(108,99,255,0.15)' : '1px solid transparent',
+          transition: 'all 0.4s ease',
+          padding: '0 5%',
+        }}
+      >
+        {/* Main bar */}
+        <div style={{ height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img
+              src="/logo.png"
+              alt="Resume2Interview Logo"
+              style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }}
+            />
+            <span style={{
+              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18,
+              background: 'linear-gradient(135deg, #F9FAFB, #818CF8)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>
+              Resume2Interview
+            </span>
+          </div>
 
-      {/* Nav links */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-        {['Features', 'How It Works'].map(link => (
-          <a key={link} href={`#${link.toLowerCase().replace(/ /g, '-')}`}
-            style={{ color: '#9CA3AF', fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#F9FAFB')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+          {/* Nav links — hidden below 640px */}
+          <div className="landing-nav-links" style={{ alignItems: 'center', gap: 32 }}>
+            {['Features', 'How It Works'].map(link => (
+              <a key={link} href={`#${link.toLowerCase().replace(/ /g, '-')}`}
+                style={{ color: '#9CA3AF', fontSize: 14, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#F9FAFB')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+
+          {/* CTA — hidden below 640px */}
+          <div className="landing-nav-cta" style={{ alignItems: 'center', gap: 12 }}>
+            <button onClick={onLogin} style={{
+              background: 'transparent', border: '1px solid rgba(108,99,255,0.4)',
+              borderRadius: 99, padding: '8px 20px', color: '#A5B4FC', fontSize: 14, fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#6C63FF'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.4)'; e.currentTarget.style.color = '#A5B4FC'; }}
+            >
+              Log In
+            </button>
+            <button onClick={onSignup} style={{
+              background: 'linear-gradient(135deg, #6C63FF, #4F46E5)',
+              border: 'none', borderRadius: 99, padding: '9px 22px',
+              color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(108,99,255,0.4)', transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(108,99,255,0.5)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(108,99,255,0.4)'; }}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Hamburger — shown below 640px */}
+          <button
+            className="landing-hamburger"
+            onClick={() => setMobileOpen(o => !o)}
+            style={{
+              background: 'transparent', border: '1px solid rgba(108,99,255,0.3)',
+              borderRadius: 10, padding: '8px', cursor: 'pointer',
+              color: '#A5B4FC', alignItems: 'center', justifyContent: 'center',
+            }}
           >
-            {link}
-          </a>
-        ))}
-      </div>
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
 
-      {/* CTA */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={onLogin} style={{
-          background: 'transparent', border: '1px solid rgba(108,99,255,0.4)',
-          borderRadius: 99, padding: '8px 20px', color: '#A5B4FC', fontSize: 14, fontWeight: 600,
-          cursor: 'pointer', transition: 'all 0.2s',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#6C63FF'; e.currentTarget.style.color = '#fff'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(108,99,255,0.4)'; e.currentTarget.style.color = '#A5B4FC'; }}
-        >
-          Log In
-        </button>
-        <button onClick={onSignup} style={{
-          background: 'linear-gradient(135deg, #6C63FF, #4F46E5)',
-          border: 'none', borderRadius: 99, padding: '9px 22px',
-          color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(108,99,255,0.4)', transition: 'all 0.2s',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(108,99,255,0.5)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(108,99,255,0.4)'; }}
-        >
-          Get Started
-        </button>
-      </div>
-    </motion.nav>
+        {/* Mobile drawer */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{ overflow: 'hidden', borderTop: '1px solid rgba(108,99,255,0.1)' }}
+            >
+              <div style={{ padding: '16px 0 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {['Features', 'How It Works'].map(link => (
+                  <a key={link} href={`#${link.toLowerCase().replace(/ /g, '-')}`}
+                    onClick={() => setMobileOpen(false)}
+                    style={{ color: '#9CA3AF', fontSize: 15, textDecoration: 'none', fontWeight: 500 }}
+                  >
+                    {link}
+                  </a>
+                ))}
+                <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
+                  <button onClick={() => { setMobileOpen(false); onLogin(); }} style={{
+                    flex: 1, background: 'transparent', border: '1px solid rgba(108,99,255,0.4)',
+                    borderRadius: 99, padding: '10px', color: '#A5B4FC', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                  }}>
+                    Log In
+                  </button>
+                  <button onClick={() => { setMobileOpen(false); onSignup(); }} style={{
+                    flex: 1, background: 'linear-gradient(135deg, #6C63FF, #4F46E5)',
+                    border: 'none', borderRadius: 99, padding: '10px',
+                    color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                  }}>
+                    Sign Up
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
+    </>
   );
 }
 
@@ -607,6 +741,7 @@ export default function Landing() {
 
   return (
     <div style={{ background: '#0A0F1E', minHeight: '100vh', color: '#F9FAFB', overflowX: 'hidden' }}>
+      <InjectStyles />
       <Navbar onLogin={() => navigate('/login')} onSignup={() => navigate('/signup')} />
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
@@ -622,10 +757,10 @@ export default function Landing() {
         }} />
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, position: 'relative', zIndex: 2, width: '100%' }}>
-          <div style={{
-            maxWidth: 1300, margin: '0 auto', padding: '120px 5% 80px',
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center',
-          }}>
+          <div
+            className="landing-hero-grid"
+            style={{ maxWidth: 1300, margin: '0 auto', padding: '120px 5% 80px' }}
+          >
             {/* Left */}
             <div>
               {/* Badge */}
@@ -684,7 +819,7 @@ export default function Landing() {
                     display: 'flex', alignItems: 'center', gap: 8,
                   }}
                 >
-                  Start Free <ArrowRight size={16} />
+                  Sign Up <ArrowRight size={16} />
                 </motion.button>
 
                 <motion.button
@@ -710,7 +845,7 @@ export default function Landing() {
               initial={{ opacity: 0, x: 60, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 480 }}
+              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 420 }}
             >
               <ResumeCard3D />
             </motion.div>
@@ -750,7 +885,7 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="landing-features-grid">
             {features.map((f, i) => (
               <FeatureCard key={f.title} {...f} delay={i * 0.08} />
             ))}
@@ -767,7 +902,7 @@ export default function Landing() {
           filter: 'blur(40px)', pointerEvents: 'none',
         }} />
 
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+        <div className="landing-how-grid" style={{ maxWidth: 1100, margin: '0 auto' }}>
           {/* Left */}
           <div>
             <motion.div
@@ -890,6 +1025,7 @@ export default function Landing() {
         <motion.div
           initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.7 }}
+          className="cta-inner-box"
           style={{
             maxWidth: 800, margin: '0 auto', textAlign: 'center',
             background: 'linear-gradient(135deg, rgba(108,99,255,0.12), rgba(59,130,246,0.08))',
@@ -941,7 +1077,7 @@ export default function Landing() {
                   display: 'flex', alignItems: 'center', gap: 8,
                 }}
               >
-                Start Practicing Free <ArrowRight size={16} />
+                Sign Up <ArrowRight size={16} />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}

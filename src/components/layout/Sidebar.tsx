@@ -26,7 +26,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className="fixed top-[56px] left-0 h-[calc(100vh-56px)] w-[var(--sidebar-w)] flex flex-col z-[100] transition-[width] duration-[220ms] ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden"
+      className="hidden sm:flex fixed top-[56px] left-0 h-[calc(100vh-56px)] w-[var(--sidebar-w)] flex-col z-[100] transition-[width] duration-[220ms] ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden"
       style={{
         backgroundColor: 'var(--color-surface)',
         borderRight: '1px solid var(--color-border)',
