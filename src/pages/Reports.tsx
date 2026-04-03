@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { interviewApi } from '@/api/interview.api';
@@ -8,7 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
-import { FileBarChart2, Calendar, Clock, ChevronRight, Play } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { FileBarChart2, Calendar, Clock, ChevronRight, Play, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
@@ -21,11 +22,40 @@ const getScorePill = (score: number | null | undefined) => {
 
 const Reports: React.FC = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: interviews, isLoading, error } = useQuery({
     queryKey: ['interviews'],
     queryFn: interviewApi.listInterviews,
   });
+
+  const filteredAndSortedInterviews = useMemo(() => {
+    if (!interviews) return [];
+    let processed = [...interviews];
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      processed = processed.filter(i => {
+        const titleMatch = (i.role_applied_for || 'Mock Technical Session').toLowerCase().includes(query);
+        const dateStr = format(new Date(i.created_at + (!i.created_at.endsWith('Z') ? 'Z' : '')), 'MMM dd, yyyy').toLowerCase();
+        const dateMatch = dateStr.includes(query);
+        
+        let status = 'needs improvement';
+        if (i.score != null) {
+          if (i.score >= 80) status = 'excellent';
+          else if (i.score >= 60) status = 'good';
+        }
+        const statusMatch = status.includes(query);
+
+        return titleMatch || dateMatch || statusMatch;
+      });
+    }
+
+    // Sort by created_at (descending -> latest is first)
+    processed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return processed;
+  }, [interviews, searchQuery]);
 
   return (
     <div className="max-w-6xl mx-auto py-8">
@@ -33,6 +63,18 @@ const Reports: React.FC = () => {
         title="Interview History"
         description="Review past performances, track your improvement over time, and read detailed AI feedback for every technical answer."
       />
+
+      {(!isLoading && !error && interviews && interviews.length > 0) && (
+        <div className="relative max-w-md mt-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by role, date, or status..." 
+            className="pl-9 bg-surface border-border focus-visible:ring-primary"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-4 mt-8">
@@ -55,9 +97,21 @@ const Reports: React.FC = () => {
             </Button>
           }
         />
+      ) : filteredAndSortedInterviews.length === 0 ? (
+        <EmptyState 
+          className="mt-8"
+          icon={Search}
+          title="No matching reports"
+          description={`No reports found matching "${searchQuery}".`}
+          action={
+            <Button onClick={() => setSearchQuery('')} className="mt-6" variant="outline">
+              Clear Search
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-4 mt-8">
-          {interviews.map((interview, index) => (
+          {filteredAndSortedInterviews.map((interview, index) => (
             <motion.div
               key={interview.id}
               initial={{ opacity: 0, y: 10 }}

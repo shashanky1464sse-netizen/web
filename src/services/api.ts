@@ -10,7 +10,7 @@ import {
   LoginStreak,
 } from '../types'
 
-const API_BASE_URL = 'http://127.0.0.1:5000'
+const API_BASE_URL = 'http://180.235.121.253:8160'
 
 // Simple axios instance with interceptors
 const apiClient = axios.create({

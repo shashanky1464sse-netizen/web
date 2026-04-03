@@ -10,6 +10,6 @@ export function getImageUrl(url?: string | null): string {
   if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) {
     return url;
   }
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://180.235.121.253:8160';
   return `${baseUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
 }
