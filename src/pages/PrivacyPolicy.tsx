@@ -15,7 +15,7 @@ const PrivacyPolicy: React.FC = () => {
           {[
             {
               title: "1. Data We Collect",
-              body: "We collect your name, email address, and password (hashed) at registration. When you upload a resume, we process it with NLP tools to extract relevant skills and work experience. Your interview responses are processed through AI APIs solely for evaluation purposes."
+              body: "We collect your name, email address, and password (hashed) at registration. When you upload a resume, we process it with NLP tools to extract relevant skills and work experience. Your interview responses are processed through AI solely for evaluation purposes."
             },
             {
               title: "2. How We Use Your Data",
@@ -31,7 +31,7 @@ const PrivacyPolicy: React.FC = () => {
             },
             {
               title: "5. Contact",
-              body: "For any privacy-related questions, please reach out to privacy@r2i.app."
+              body: "For any privacy-related questions, please reach out to shashankyerragunta22@gmail.com."
             }
           ].map((section, i) => (
             <React.Fragment key={i}>
