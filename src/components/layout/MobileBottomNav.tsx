@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, Mic, BarChart2, User, LogOut } from 'lucide-react';
+import { Home, Mic, BarChart2, User } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 const mobileNavItems = [
@@ -11,13 +11,6 @@ const mobileNavItems = [
 ];
 
 export const MobileBottomNav: React.FC = () => {
-  const { logout } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <>
@@ -65,20 +58,7 @@ export const MobileBottomNav: React.FC = () => {
           </NavLink>
         ))}
 
-        {/* Logout tab */}
-        <button
-          onClick={handleLogout}
-          className="flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors duration-150 hover:text-red-400"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
-          <div
-            className="flex items-center justify-center"
-            style={{ width: 40, height: 28, borderRadius: 14 }}
-          >
-            <LogOut size={20} strokeWidth={1.8} />
-          </div>
-          <span style={{ fontSize: 10, fontWeight: 500 }}>Logout</span>
-        </button>
+
       </nav>
     </>
   );

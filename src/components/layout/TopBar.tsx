@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getImageUrl } from '@/lib/utils';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 
 const routeTitles: Record<string, string> = {
   '/home': 'Dashboard',
@@ -56,6 +56,18 @@ export const TopBar: React.FC = () => {
 
       {/* 3. User Avatar (pushed right) */}
       <div className="ml-auto flex items-center">
+        {/* Logout button (visible on mobile where sidebar is hidden) */}
+        <button 
+          onClick={() => {
+            useAuthStore.getState().logout();
+            navigate('/login');
+          }}
+          className="sm:hidden p-[8px] mr-1 rounded-[8px] transition-colors hover:bg-red-500/10 hover:text-red-500"
+          style={{ color: 'var(--color-text-muted)' }}
+          aria-label="Logout"
+        >
+          <LogOut size={20} />
+        </button>
         <button 
           onClick={() => navigate('/profile')}
           className="flex items-center gap-[12px] p-[4px] pr-[12px] rounded-[10px] transition-colors hover:bg-primary/5"
